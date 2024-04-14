@@ -1,17 +1,23 @@
 import Filters from '@/components/Filters'
+import Header from '@/components/Header'
 import ResourceCard from '@/components/ResourceCard'
 import SearchForm from '@/components/SearchForm'
 import { getResources } from '@/sanity/actions'
 import { Search } from 'lucide-react'
 import React from 'react'
 
+
 export const revalidate = 900
 
-const Page = async () => {
+interface Props {
+  searchParams: { [key: string]: string | undefined}
+}
 
+const Page = async ({ searchParams }: Props) => {
+  console.log(searchParams)
   const resources = await getResources({
-    query: '',
-    category: '',
+    query: searchParams?.query || '',
+    category: searchParams?.category || '',
     page: '1'
   })
 
@@ -30,28 +36,34 @@ const Page = async () => {
       </section>
 
       <Filters />
-
-      <section className="flex-center mt-6 flex-col sm:mt-20">
-        
-        <div className="mt-12 flex w-full flex-wrap 
-          justify-center gap-16 sm:justify-start">
-            {resources?.length > 0 ? (
-              resources.map((resource: any) => (
-                <ResourceCard 
-                key={resource._id}
-                title={resource.title}
-                id={resource._id}
-                image={resource.image}
-                downloadNumber={resource.views}
-                />
-              ))
-            ) : (
-              <p className="body-regular text-white-400">
-                No se encontraron Recursos.
-              </p>
-            )}
-        </div>
-      </section>
+      
+      {searchParams?.query || searchParams?.category && (
+        <section className="flex-center mt-6 flex-col sm:mt-20">
+          <Header
+            title="Resources"
+            query={searchParams?.query || ''}
+            categroy={searchParams?.category || ''}
+          />  
+          <div className="mt-12 flex w-full flex-wrap 
+            justify-center gap-16 sm:justify-start">
+              {resources?.length > 0 ? (
+                resources.map((resource: any) => (
+                  <ResourceCard 
+                  key={resource._id}
+                  title={resource.title}
+                  id={resource._id}
+                  image={resource.image}
+                  downloadNumber={resource.views}
+                  />
+                ))
+              ) : (
+                <p className="body-regular text-white-400">
+                  No se encontraron Recursos.
+                </p>
+              )}
+          </div>
+        </section>
+      )}
     </main>
   )
 }
